@@ -131,6 +131,65 @@ canvas#S{position:fixed;inset:0;z-index:0;pointer-events:none}
 #legend{width:100%;display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
 .leg{display:flex;align-items:center;gap:3px;font-size:8px;color:rgba(255,255,255,.45)}
 .legdot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+/* ── Mobile responsive ── */
+*{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.ca,.ba,.qb,#btnM,#ovc{touch-action:manipulation}
+@media(max-width:480px){
+  html,body{overflow-y:auto}
+  #app{padding:5px 5px 14px;gap:4px}
+  #inner{gap:4px}
+  #logo{font-size:14px;letter-spacing:1px}
+  .pill{font-size:11px;padding:3px 9px}
+  #ph{font-size:10px;min-height:12px}
+  .hp{min-height:17px;font-size:8px;border-radius:4px;padding:2px 1px}
+  #rw{padding:6px;border-radius:10px}
+  #rlb{font-size:7px;margin-bottom:4px}
+  #rvp{height:52px}
+  #gw{padding:5px;border-radius:13px;border-width:2px}
+  #gd{gap:2px}
+  .c{border-radius:7px}
+  .sweet-lbl,.scatter-lbl{gap:0}
+  #mw{gap:4px}
+  .mp{padding:5px 4px;border-radius:9px}
+  .mlb{font-size:6px;letter-spacing:.5px}
+  #win-amt{font-size:17px}
+  #scatter-disp,#pov{font-size:13px}
+  .pp{width:8px;height:8px}
+  #prb{gap:4px;margin-top:2px}
+  #legend{gap:3px}
+  .leg{font-size:6.5px}
+  .legdot{width:7px;height:7px}
+  #cw{padding:7px;gap:5px;border-radius:11px}
+  #brow{gap:5px}
+  .ba{width:38px;height:38px;font-size:20px;border-radius:7px}
+  #bval{font-size:16px}
+  #qrow{gap:3px}
+  .qb{font-size:9px;padding:7px 3px;border-radius:6px}
+  #btnM{padding:12px;font-size:13px;letter-spacing:1.5px;border-radius:9px}
+  #ovb{padding:22px 24px}
+  #ovt{font-size:26px}
+  #ova{font-size:22px;margin-bottom:14px}
+}
+@media(max-width:360px){
+  #legend{display:none}
+  #app{gap:3px}
+  #inner{gap:3px}
+  #gw{padding:4px}
+  #gd{gap:2px}
+  .mp{padding:4px 3px}
+  #win-amt{font-size:14px}
+  #scatter-disp,#pov{font-size:11px}
+  .ba{width:34px;height:34px}
+  #btnM{padding:10px;font-size:12px}
+}
+@media(max-height:640px) and (max-width:480px){
+  #legend{display:none}
+  #rw{padding:4px 6px}
+  #rlb{display:none}
+  #rvp{height:44px}
+  #mw{gap:3px}
+  .mp{padding:4px 3px}
+}
 </style>
 </head>
 <body>
