@@ -766,7 +766,22 @@ function onCell(r,c){
   if(G.phase!=='playing')return;
   var prevR=G.deer.r,prevC=G.deer.c;
   G.sel={r:r,c:c};G.phase='spinning';render();ui();setPH('Hươu đang nhảy...');
-  var si=(G.round<10)?(5+Math.floor(Math.random()*5)):wrnd();
+  // Phân loại symbol: safe (không bomb vào ô đang đi) vs kill (bomb vào ô đó)
+  var safeSym=[],killSym=[],sk,ii;
+  for(ii=0;ii<SYM.length;ii++){
+    var hits=false;
+    for(sk=0;sk<SYM[ii].c.length;sk++){if(SYM[ii].c[sk][0]===r&&SYM[ii].c[sk][1]===c){hits=true;break;}}
+    (hits?killSym:safeSym).push(ii);
+  }
+  // 25% sống, 75% chết
+  var si;
+  if(Math.random()<0.75&&safeSym.length>0){
+    si=safeSym[Math.floor(Math.random()*safeSym.length)];
+  }else if(killSym.length>0){
+    si=killSym[Math.floor(Math.random()*killSym.length)];
+  }else{
+    si=safeSym[Math.floor(Math.random()*safeSym.length)];
+  }
   closeDoor();
   sleep(330).then(function(){openDoor();return Promise.all([spinReel(si),sleep(1550).then(function(){return animateDeer(prevR,prevC,r,c,450);})]);}).then(function(){
     G.deer={r:r,c:c};G.grid[r][c].s='r';G.sel=null;render();
