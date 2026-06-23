@@ -746,7 +746,7 @@ function onCell(r,c){
     (hits?killSym:safeSym).push(ii);
   }
   var si;
-  if(Math.random()<0.80&&safeSym.length>0)si=safeSym[Math.floor(Math.random()*safeSym.length)];
+  if(Math.random()<0.70&&safeSym.length>0)si=safeSym[Math.floor(Math.random()*safeSym.length)];
   else if(killSym.length>0)si=killSym[Math.floor(Math.random()*killSym.length)];
   else si=safeSym[Math.floor(Math.random()*safeSym.length)];
 
