@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Deer Candy</title>
+<title>Candy Dash</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;background:#1a0535;color:#fff;font-family:'Arial Rounded MT Bold',Arial,sans-serif;user-select:none;overflow-x:hidden}
@@ -22,12 +22,12 @@ canvas#S{position:fixed;inset:0;z-index:0;pointer-events:none}
 #rw{width:100%;background:rgba(0,0,0,.45);border:1.5px solid rgba(100,100,255,.3);border-radius:13px;padding:9px}
 #rlb{font-size:8px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.3);text-align:center;margin-bottom:6px}
 #reel-wrap{position:relative}
-#rvp{width:100%;height:60px;overflow:hidden;position:relative;border-radius:8px}
+#rvp{width:100%;height:50px;overflow:hidden;position:relative;border-radius:8px}
 #rvp::before,#rvp::after{content:'';position:absolute;top:0;bottom:0;width:18px;z-index:2;pointer-events:none}
 #rvp::before{left:0;background:linear-gradient(to right,rgba(0,0,0,.9),transparent)}
 #rvp::after{right:0;background:linear-gradient(to left,rgba(0,0,0,.9),transparent)}
 #rhl{position:absolute;top:0;bottom:0;left:50%;width:60px;transform:translateX(-50%);border:1.5px solid rgba(251,191,36,.38);border-radius:8px;z-index:3;pointer-events:none}
-#rtk{display:flex;position:absolute;top:0;left:0;height:60px}
+#rtk{display:flex;position:absolute;top:0;left:0;height:50px}
 .ri{flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px}
 .rn{font-size:6px;color:rgba(255,255,255,.3);text-transform:uppercase;text-align:center}
 .mg{display:grid;grid-template-columns:repeat(7,5px);grid-template-rows:repeat(7,5px);gap:1px}
@@ -105,9 +105,9 @@ canvas#S{position:fixed;inset:0;z-index:0;pointer-events:none}
   85% {border-color:#ff44cc;box-shadow:0 0 55px rgba(255,68,204,.7),inset 0 0 25px rgba(0,0,0,.35)}
   100%{border-color:#ff3366;box-shadow:0 0 55px rgba(255,51,102,.7),inset 0 0 25px rgba(0,0,0,.35)}
 }
-#mw{width:100%;display:flex;gap:7px}
-.mp{flex:1;background:rgba(0,0,0,.4);border:1.5px solid rgba(100,100,255,.25);border-radius:11px;padding:12px 8px;text-align:center}
-.mlb{font-size:7px;text-transform:uppercase;letter-spacing:1px;color:#fff;margin-bottom:4px}
+#mw{width:100%;display:flex;gap:7px;flex:1;min-height:80px;max-height:180px}
+.mp{flex:1;background:rgba(0,0,0,.4);border:1.5px solid rgba(100,100,255,.25);border-radius:11px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mlb{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.75);margin-bottom:4px}
 #win-amt{font-size:30px;font-weight:900;color:#6ee7b7;line-height:1.1}
 #scatter-disp{font-size:24px;font-weight:700;color:#ffd700}
 #prb{display:flex;gap:5px;margin-top:4px;justify-content:center}
@@ -139,8 +139,7 @@ canvas#S{position:fixed;inset:0;z-index:0;pointer-events:none}
   .hp{min-height:16px;font-size:8px}
   #rw{padding:5px;border-radius:10px}
   #rlb{display:none}
-  #rvp{height:44px}
-  #gw{padding:5px;border-radius:13px;border-width:2px}
+  #rvp{height:46px}
   #gd{gap:2px}
   .c{border-radius:7px}
   #mw{gap:4px}
@@ -172,9 +171,10 @@ canvas#S{position:fixed;inset:0;z-index:0;pointer-events:none}
   #inner{gap:2px}
   .hp{min-height:13px;font-size:7px}
   #rw{padding:3px 5px}
-  #rvp{height:36px}
+  #rvp{height:44px}
   #gw{padding:3px}
   #gd{gap:1px}
+  #mw{max-height:110px}
   .mp{padding:6px 4px}
   #win-amt{font-size:20px}
   #scatter-disp{font-size:15px}
@@ -189,7 +189,7 @@ canvas#S{position:fixed;inset:0;z-index:0;pointer-events:none}
 <canvas id="S"></canvas>
 <div id="app"><div id="inner">
   <div id="hdr">
-    <div id="logo">&#x1F36C; DEER CANDY</div>
+    <div id="logo">&#x1F36C; CANDY DASH</div>
     <div class="pill">&#x1F4B0; <span id="bal">100.00</span></div>
   </div>
   <div id="hist"></div>
@@ -261,11 +261,10 @@ function renderReelDOM(){
   var tk=document.getElementById('rtk');tk.innerHTML='';tk.style.width=(rArr.length*IW)+'px';
   for(var idx=0;idx<rArr.length;idx++){
     var si=rArr[idx],bm={};for(var k=0;k<SYM[si].c.length;k++){var rc=SYM[si].c[k];bm[rc[0]+','+rc[1]]=1;}
-    var item=document.createElement('div');item.className='ri';item.style.width=IW+'px';item.style.height=IW+'px';
+    var item=document.createElement('div');item.className='ri';item.style.width=IW+'px';item.style.height='50px';
     var mg=document.createElement('div');mg.className='mg';
     for(var r=0;r<7;r++)for(var c=0;c<7;c++){var mc=document.createElement('div');mc.className='mc';if(bm[r+','+c])mc.classList.add('bc');mg.appendChild(mc);}
-    var nm=document.createElement('div');nm.className='rn';nm.textContent=SYM[si].n;
-    item.appendChild(mg);item.appendChild(nm);tk.appendChild(item);
+    item.appendChild(mg);tk.appendChild(item);
   }
 }
 function setReel(idx){var vp=document.getElementById('rvp'),vpW=vp.clientWidth||320;rX=vpW/2-IW/2-idx*IW;document.getElementById('rtk').style.transform='translateX('+rX+'px)';}
