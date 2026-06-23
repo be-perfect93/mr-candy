@@ -350,35 +350,53 @@ function spinReel(ts){
 }
 
 /* Grid */
-function randPurpleVal(){var r=Math.random();if(r<.5)return 2;if(r<.75)return 4;if(r<.9)return 6;if(r<.97)return 10;return 20;}
-
-function makeCell(){
+function randPurpleVal(){
   var r=Math.random();
-  if(r<0.33)return{s:'h',ct:'empty',   val:null};
-  if(r<0.51)return{s:'h',ct:'cash_low', val:Math.random()<0.6?0.5:0.7};
-  if(r<0.69)return{s:'h',ct:'cash_mid', val:Math.random()<0.55?0.8:1.0};
-  if(r<0.83)return{s:'h',ct:'cash_high',val:Math.random()<0.7?1.5:2.0};
-  if(r<0.91)return{s:'h',ct:'purple',   val:randPurpleVal()};
-  if(r<0.96)return{s:'h',ct:'scatter',  val:null};
-  return{s:'h',ct:'sweet',val:null};
+  if(r<0.30)return 1.2;
+  if(r<0.55)return 1.5;
+  if(r<0.75)return 2;
+  if(r<0.87)return 3;
+  if(r<0.95)return 4;
+  return 5;
 }
 
-function capScatters(){
-  var max=Math.floor(GS*GS*0.10),list=[];
-  for(var r=0;r<GS;r++)for(var c=0;c<GS;c++)if(G.grid[r][c].ct==='scatter')list.push([r,c]);
-  while(list.length>max){var i=Math.floor(Math.random()*list.length),p=list.splice(i,1)[0];G.grid[p[0]][p[1]]={s:'h',ct:'empty',val:null};}
+var CELL_RATIOS=[
+  {ct:'empty',    r:0.45},
+  {ct:'cash_low', r:0.10},
+  {ct:'cash_mid', r:0.08},
+  {ct:'cash_high',r:0.02},
+  {ct:'purple',   r:0.20},
+  {ct:'scatter',  r:0.05},
+  {ct:'sweet',    r:0.10}
+];
+
+function makeTypedCell(ct){
+  if(ct==='cash_low') return{s:'h',ct:'cash_low', val:Math.random()<0.6?0.5:0.7};
+  if(ct==='cash_mid') return{s:'h',ct:'cash_mid', val:Math.random()<0.55?0.8:1.0};
+  if(ct==='cash_high')return{s:'h',ct:'cash_high',val:Math.random()<0.7?1.5:2.0};
+  if(ct==='purple')   return{s:'h',ct:'purple',   val:randPurpleVal()};
+  if(ct==='scatter')  return{s:'h',ct:'scatter',  val:null};
+  if(ct==='sweet')    return{s:'h',ct:'sweet',    val:null};
+  return{s:'h',ct:'empty',val:null};
 }
 
-function capSweet(){
-  var max=2,list=[];
-  for(var r=0;r<GS;r++)for(var c=0;c<GS;c++)if(G.grid[r][c].ct==='sweet')list.push([r,c]);
-  while(list.length>max){var i=Math.floor(Math.random()*list.length),p=list.splice(i,1)[0];G.grid[p[0]][p[1]]={s:'h',ct:'empty',val:null};}
+function makeCellPool(n){
+  if(n<=0)return[];
+  var pool=[],rem=n;
+  for(var i=0;i<CELL_RATIOS.length;i++){
+    var cnt=(i===CELL_RATIOS.length-1)?rem:Math.min(rem,Math.round(n*CELL_RATIOS[i].r));
+    for(var j=0;j<cnt;j++)pool.push(makeTypedCell(CELL_RATIOS[i].ct));
+    rem-=cnt;
+  }
+  for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=pool[i];pool[i]=pool[j];pool[j]=t;}
+  return pool;
 }
 
 function newGrid(){
+  var pool=makeCellPool(GS*GS);
   G.grid=[];
-  for(var r=0;r<GS;r++){G.grid[r]=[];for(var c=0;c<GS;c++)G.grid[r][c]=makeCell();}
-  capScatters();capSweet();G.grid[DS.r][DS.c].s='r';
+  for(var r=0;r<GS;r++){G.grid[r]=[];for(var c=0;c<GS;c++)G.grid[r][c]=pool[r*GS+c];}
+  G.grid[DS.r][DS.c].s='r';
 }
 
 function getAdj(r,c){
@@ -394,13 +412,15 @@ function getAdj(r,c){
 function getDeerNewRow(bs,r,c){var b=0;for(var row=r+1;row<GS;row++)if(bs[row+','+c])b++;return Math.min(GS-1,r+b);}
 
 function applyGravityToGrid(bs){
+  var totalNew=0,npc=[];
+  for(var col=0;col<GS;col++){var cnt=0;for(var row=0;row<GS;row++)if(bs[row+','+col])cnt++;npc.push(cnt);totalNew+=cnt;}
+  var pool=makeCellPool(totalNew),pidx=0;
   for(var col=0;col<GS;col++){
     var surv=[];
     for(var row=0;row<GS;row++){if(!bs[row+','+col]){var g=G.grid[row][col];surv.push({s:g.s,ct:g.ct,val:g.val});}}
     var numNew=GS-surv.length;
-    for(var row=0;row<GS;row++){if(row<numNew)G.grid[row][col]=makeCell();else G.grid[row][col]=surv[row-numNew];}
+    for(var row=0;row<GS;row++){if(row<numNew)G.grid[row][col]=pool[pidx++];else G.grid[row][col]=surv[row-numNew];}
   }
-  capScatters();capSweet();
 }
 
 /* Render */
