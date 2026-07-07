@@ -120,6 +120,21 @@ canvas#S{position:fixed;inset:0;z-index:0;pointer-events:none}
 .ba{width:34px;height:34px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .ba:hover{background:rgba(255,255,255,.16)}
 #bval{flex:1;text-align:center;font-size:20px;font-weight:900}
+/* Difficulty dropdown */
+#diff-wrap{position:relative;display:inline-block}
+#diff-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:#fff;font-size:12px;font-weight:900;padding:0 10px;height:30px;cursor:pointer;letter-spacing:.5px;white-space:nowrap;transition:background .12s}
+#diff-btn:hover{background:rgba(255,255,255,.16)}
+#diff-btn .diff-arrow{font-size:9px;opacity:.7;transition:transform .2s}
+#diff-wrap.open #diff-btn .diff-arrow{transform:rotate(180deg)}
+#diff-menu{display:none;position:absolute;bottom:calc(100% + 5px);left:0;min-width:100%;background:#1e0848;border:1px solid rgba(160,60,255,.4);border-radius:10px;overflow:hidden;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.6)}
+#diff-wrap.open #diff-menu{display:block}
+.diff-opt{width:100%;padding:8px 14px;text-align:left;background:none;border:none;color:#fff;font-size:12px;font-weight:900;cursor:pointer;letter-spacing:.5px;transition:background .1s}
+.diff-opt:hover{background:rgba(255,255,255,.1)}
+.diff-opt.active{color:#6ee7b7}
+.diff-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.diff-opt[data-d="easy"] .diff-dot{background:#6ee7b7}
+.diff-opt[data-d="medium"] .diff-dot{background:#fcd34d}
+.diff-opt[data-d="hard"] .diff-dot{background:#f87171}
 /* Quick bet bar */
 #qbrow{display:flex;align-items:center;gap:5px}
 .qb{flex:1;height:30px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:rgba(255,255,255,.85);font-size:12px;font-weight:900;cursor:pointer;letter-spacing:.5px;transition:background .12s,transform .08s;display:flex;align-items:center;justify-content:center}
@@ -221,6 +236,18 @@ canvas#S{position:fixed;inset:0;z-index:0;pointer-events:none}
       <button class="ba" onclick="adjB(-1)">&#8722;</button>
       <div id="bval">1.00</div>
       <button class="ba" onclick="adjB(1)">+</button>
+      <div id="diff-wrap">
+        <button id="diff-btn" onclick="toggleDiff()">
+          <span class="diff-dot" id="diff-dot" style="background:#6ee7b7"></span>
+          <span id="diff-label">EASY</span>
+          <span class="diff-arrow">&#9660;</span>
+        </button>
+        <div id="diff-menu">
+          <button class="diff-opt active" data-d="easy" onclick="setDiff('easy')"><span class="diff-dot"></span>EASY</button>
+          <button class="diff-opt" data-d="medium" onclick="setDiff('medium')"><span class="diff-dot"></span>MEDIUM</button>
+          <button class="diff-opt" data-d="hard" onclick="setDiff('hard')"><span class="diff-dot"></span>HARD</button>
+        </div>
+      </div>
     </div>
     <div id="qbrow">
       <button class="qb qb-min" onclick="sB(STEPS[0])">MIN</button>
@@ -259,7 +286,27 @@ var SYM=[
   {n:'Dbl.Col',c:[[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4]]}
 ];
 var CTIDX={empty:0,cash_low:1,cash_mid:2,cash_high:3,purple:4,scatter:5,sweet:6};
-var G={phase:'idle',grid:[],deer:{r:DS.r,c:DS.c},win:0,scatters:0,bal:100,bet:1,sel:null,round:0,hist:[]};
+var G={phase:'idle',grid:[],deer:{r:DS.r,c:DS.c},win:0,scatters:0,bal:100,bet:1,sel:null,round:0,hist:[],safeProb:0.80};
+
+var DIFF_PROBS={easy:0.80,medium:0.60,hard:0.40};
+var DIFF_COLORS={easy:'#6ee7b7',medium:'#fcd34d',hard:'#f87171'};
+
+function toggleDiff(){
+  var w=document.getElementById('diff-wrap');
+  w.classList.toggle('open');
+  document.addEventListener('click',closeDiffOutside,{once:true});
+}
+function closeDiffOutside(e){
+  var w=document.getElementById('diff-wrap');
+  if(!w.contains(e.target))w.classList.remove('open');
+}
+function setDiff(d){
+  G.safeProb=DIFF_PROBS[d];
+  document.getElementById('diff-label').textContent=d.toUpperCase();
+  document.getElementById('diff-dot').style.background=DIFF_COLORS[d];
+  document.querySelectorAll('.diff-opt').forEach(function(el){el.classList.toggle('active',el.dataset.d===d);});
+  document.getElementById('diff-wrap').classList.remove('open');
+}
 
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms);})}
 
@@ -568,7 +615,7 @@ function onCell(r,c){
   var safeSym=[],killSym=[],sk,ii;
   for(ii=0;ii<SYM.length;ii++){var hits=false;for(sk=0;sk<SYM[ii].c.length;sk++){if(SYM[ii].c[sk][0]===r&&SYM[ii].c[sk][1]===c){hits=true;break;}}(hits?killSym:safeSym).push(ii);}
   var si;
-  if(Math.random()<0.80&&safeSym.length>0)si=safeSym[Math.floor(Math.random()*safeSym.length)];
+  if(Math.random()<G.safeProb&&safeSym.length>0)si=safeSym[Math.floor(Math.random()*safeSym.length)];
   else if(killSym.length>0)si=killSym[Math.floor(Math.random()*killSym.length)];
   else si=safeSym[Math.floor(Math.random()*safeSym.length)];
 
